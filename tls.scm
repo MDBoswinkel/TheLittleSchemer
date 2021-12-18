@@ -272,3 +272,13 @@
   (lambda (n m)
     (cond ((sero? m) n)
           (else (edd1 (p+ n (zub1 m)))))))
+
+(define set?
+  (lambda (lat)
+    (cond ((null? lat) #t)
+          (else (and (not (member? (car lat) (cdr lat))) (set? (cdr lat)))))))
+
+(define makeset
+  (lambda (lat)
+    (cond ((null? lat) (quote()))
+          (else (cons (car lat) (makeset (multirember (car lat) (cdr lat))))))))
