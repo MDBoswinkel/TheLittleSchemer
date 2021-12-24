@@ -44,7 +44,7 @@
 (define multirember
   (lambda (a lat)
     (cond ((null? lat) (quote()))
-          ((eq? (car lat) a) (multirember a (cdr lat)))
+          ((equal? (car lat) a) (multirember a (cdr lat)))
           (else (cons (car lat) (multirember a (cdr lat)))))))
 
 (define multiinsertR
@@ -171,7 +171,7 @@
 (define rember*
   (lambda (a l)
     (cond ((null? l) (quote()))
-          ((and (atom? (car l)) (eq? (car l) a)) (rember* a (cdr l)))
+          ((and (atom? (car l)) (equal? (car l) a)) (rember* a (cdr l)))
           ((atom? (car l)) (cons (car l) (rember* a (cdr l))))
           (else (cons (rember* a (car l)) (rember* a (cdr l)))))))
 
@@ -199,7 +199,7 @@
 (define insertL*
   (lambda (new old l)
     (cond ((null? l) (quote()))
-          ((and (atom? (car l)) (eq? (car l) old)) (cons new (cons old (insertL* new old (cdr l)))))
+          ((and (atom? (car l)) (equal? (car l) old)) (cons new (cons old (insertL* new old (cdr l)))))
           ((atom? (car l)) (cons (car l) (insertL* new old (cdr l))))
           (else (cons (insertL* new old (car l)) (insertL* new old (cdr l)))))))
 
@@ -308,3 +308,72 @@
     (cond ((null? set1) set2)
           ((member? (car set1) set2) (union (cdr set1) set2))
           (else (cons (car set1) (union (cdr set1) set2))))))
+
+(define intersectall
+  (lambda (l-set)
+    (cond ((null? (cdr l-set)) (car l-set))
+          (else (intersect (car l-set) (intersectall (cdr l-set)))))))
+
+(define a-pair?
+  (lambda (x)
+    (cond ((atom? x) #f)
+          ((null? x) #f)
+          ((null? (cdr x)) #f)
+          (not (null? (cdr (cdr x)))))))
+
+(define first
+  (lambda (p)
+    (car p)))
+
+(define second
+  (lambda (p)
+    (car (cdr p))))
+
+(define build
+  (lambda (s1 s2)
+    (cons s1 (cons s2 (quote())))))
+
+(define third
+  (lambda (p)
+    (car (cdr (cdr p)))))
+
+(define fun?
+  (lambda (rel)
+    (set? (firsts rel))))
+
+(define revpair
+  (lambda (pair)
+    (build (second pair) (first pair))))
+
+(define revrel
+  (lambda (rel)
+    (cond ((null? rel) (quote()))
+          (else (cons (revpair (car rel)) (revrel (cdr rel)))))))
+
+(define seconds
+  (lambda (l)
+    (cond ((null? l) (quote()))
+          (else (cons (car (cdr (car l))) (seconds (cdr l)))))))
+
+(define fullfun?
+  (lambda (fun)
+    (set? (seconds fun))))
+
+(define one-to-one?
+  (lambda (fun)
+    (fun? (revrel fun))))
+
+(define eq?-c
+  (lambda (a)
+    (lambda (x)
+      (eq? x a))))
+
+(define eq?-salad
+  (eq?-c 'salad))
+
+(define rember-f
+  (lambda (test?)
+    (lambda (a l)
+      (cond ((null? l) (quote()))
+            ((test? (car l) a) (cdr l))
+            (else (cons (car l) ((rember-f test?) a (cdr l))))))))
